@@ -1,0 +1,30 @@
+{
+  "name": "geo2stl",
+  "version": "0.1.0",
+  "description": "Convert shapefiles to STL 3D models",
+  "keywords": [
+    "geojson",
+    "shapefile",
+    "topojson",
+    "stl",
+    "kml"
+  ],
+  "author": {
+    "name": "Doug McCune",
+    "url": "http://dougmccune.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/dougmccune/shp2stl.git"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "dependencies": {
+    "shapefile": "^0.3.0",
+    "topojson": "^1.6.0",
+    "deepcopy": "^0.3.0",
+    "point-in-polygon": "^0.0.0",
+    "three": "^0.66.0",
+    "ogr2ogr": "^0.3.0"
+  }
+}

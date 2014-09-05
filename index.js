@@ -1,1 +1,1 @@
-module.exports = require('./src/geo2stl');
+module.exports = require('./src/shp2stl');

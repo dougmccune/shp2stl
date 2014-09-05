@@ -2,6 +2,12 @@ shp2stl
 =======
 Utility for converting a shapefile to a 3D model. You can specify a property (or function) to use for the height of each shape. 
 
+Installation
+============
+```bash
+$ npm install shp2stl
+```
+
 Usage
 =====
 

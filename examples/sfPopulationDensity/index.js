@@ -17,10 +17,6 @@ geo2stl.shp2stl(file,
 		extrusionMode: 'straight'
 	},
 	function(err, stl) {
-		fs.writeFileSync(removeExtension(file) + '.stl',  stl);
+		fs.writeFileSync('SanFranciscoPopulation.stl',  stl);
 	}
 );
-
-function removeExtension(file) {
-	return file.substring(0, file.lastIndexOf('.'));
-}

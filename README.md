@@ -2,7 +2,8 @@ shp2stl
 =======
 Utility for converting a shapefile to a 3D model. You can specify a property (or function) to use for the height of each shape. 
 
-Example usage:
+Usage
+=====
 
 	var fs = require('fs');
 	var shp2stl = require('shp2stl');
@@ -26,6 +27,13 @@ Example usage:
 			fs.writeFileSync('SanFranciscoPopulation.stl',  stl);
 		}
 	);
+
+Methods
+=========
+shp2stl(shapefilePath, options, callback)
+---------------------------------------
+
+Takes a path to a .shp file and a set of configuration options (see below). The provided callback will be called once complete with the bytes of the STL file in the result for you to save.
 
 Options
 =======

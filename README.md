@@ -5,11 +5,11 @@ Utility for converting a shapefile to a 3D model. You can specify a property (or
 Example usage:
 
 	var fs = require('fs');
-	var geo2stl = require('../../.');
+	var shp2stl = require('shp2stl');
 
 	var file = 'SanFranciscoPopulation.shp';
 
-	geo2stl.shp2stl(file, 
+	shp2stl.shp2stl(file, 
 		{
 			width: 100, //in STL arbitrary units, but typically 3D printers use mm
 			height: 10,

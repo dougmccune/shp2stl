@@ -1,9 +1,9 @@
 var fs = require('fs');
-var geo2stl = require('../../.');
+var shp2stl = require('../../.');
 
 var file = 'SanFranciscoPopulation.shp';
 
-geo2stl.shp2stl(file, 
+shp2stl.shp2stl(file, 
 	{
 		width: 100, //in STL arbitrary units, but typically 3D printers use mm
 		height: 10,

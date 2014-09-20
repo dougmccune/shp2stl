@@ -5,7 +5,7 @@ var bounds = require('topojson/lib/topojson/bounds');
 module.exports = topojson2threejs;
 
 function topojson2threejs(topology, options) {
-	var simplificationPercentage = 0,
+	var simplification = 0,
 	    targetWidth = NaN,
 	    targetHeight = 10,
 	    fixedMax = NaN,

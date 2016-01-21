@@ -396,10 +396,10 @@ function topoShape2threeShape(topology, object) {
 	if(outer.length <= 1) {
 		return null;
 	}
-	if(outer.length == 3 && outer[0].x == outer[2].x && outer[0].y == outer[2].y) {
+	if(outer.length == 3 && outer[0][0] == outer[2][0] && outer[0][1] == outer[2][1]) {
 		return null;
 	}
-	else if(outer.length == 2 && outer[0].x == outer[1].x && outer[0].y == outer[1].y) {
+	else if(outer.length == 2 && outer[0][0] == outer[1][0] && outer[0][1] == outer[1][1]) {
 		return null;
 	}
 

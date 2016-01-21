@@ -11,6 +11,7 @@ function topojson2threejs(topology, options) {
 	    fixedMax = NaN,
 	    extraBaseHeight = 1,
 	    extrudeBy,
+	    valueConversionFunction,
 	    extrusionMode = 'straight',
 	    verbose;
 
@@ -21,6 +22,7 @@ function topojson2threejs(topology, options) {
 		"fixedMax" in options && (fixedMax = +options["fixedMax"]),
 		"extraBaseHeight" in options && (extraBaseHeight = +options["extraBaseHeight"]),
 		"extrudeBy" in options && (extrudeBy = options["extrudeBy"]),
+		"valueConversionFunction" in options && (valueConversionFunction = options["valueConversionFunction"]),
 		"extrusionMode" in options && (extrusionMode = options["extrusionMode"]),
 		"verbose" in options && (verbose = !!options["verbose"]);
 
@@ -41,6 +43,8 @@ function topojson2threejs(topology, options) {
 					"retain-proportion": simplification,
 					"verbose": verbose
 				});
+
+			require('fs').writeFileSync("topojson_simplified.topojson", JSON.stringify(topology));
 		}
 		catch(e) {
 			if(verbose)
@@ -54,12 +58,12 @@ function topojson2threejs(topology, options) {
 	if(verbose)
 		console.log("making top planes");
 	
-	var tops    = topojson2threeJSTopPlanes(topology, extrudeBy, targetHeight, extraBaseHeight, fixedMax, extrusionMode === 'smooth');
+	var tops    = topojson2threeJSTopPlanes(topology, extrudeBy, valueConversionFunction, targetHeight, extraBaseHeight, fixedMax, extrusionMode === 'smooth');
 	
 	if(verbose)
 		console.log("making side planes");
 	
-	var sides   = topojson2threeJSSides( topology, extrudeBy, targetHeight, extraBaseHeight, fixedMax, extrusionMode === 'smooth');
+	var sides   = topojson2threeJSSides( topology, extrudeBy, valueConversionFunction, targetHeight, extraBaseHeight, fixedMax, extrusionMode === 'smooth');
 	
 	var all = tops.concat(sides);
 
@@ -141,14 +145,18 @@ function mergeZCoords(shapes) {
 	});
 }
 
-function topojson2threeJSSides(topology, extrudeBy, targetHeight, extraBaseHeight, fixedMax, onlyEdges) {
+function topojson2threeJSSides(topology, extrudeBy, valueConversionFunction, targetHeight, extraBaseHeight, fixedMax, onlyEdges) {
 	var topoShapes = [];
 
 	var max = -Infinity;
 
 	var fixedMaxSet = !isNaN(fixedMax);
-	if(fixedMaxSet)
+	if(fixedMaxSet) {
 		max = fixedMax;
+
+		if(valueConversionFunction)
+			max = valueConversionFunction(max);
+	}
 
 
 	var isFunction = typeof extrudeBy === "function";
@@ -157,11 +165,16 @@ function topojson2threeJSSides(topology, extrudeBy, targetHeight, extraBaseHeigh
 
 	topology.objects.forEach(function(topoObj) {
 		var extrusionValue = isFunction ? extrudeBy(topoObj) : parseFloat(topoObj.properties[extrudeBy]);
-		if(isNaN(extrusionValue))
+		
+		if(valueConversionFunction)
+			extrusionValue = valueConversionFunction(extrusionValue);
+
+		if(isNaN(extrusionValue) || extrusionValue == Infinity || extrusionValue == -Infinity)
 			extrusionValue = 0;
 
-		if(!fixedMaxSet)
+		if(!fixedMaxSet) {
 			max = Math.max(extrusionValue, max);
+		}
 
 		for(var i=0; i<topoObj.arcs.length; i++) {
 			var arcArray = topoObj.arcs[i];
@@ -299,7 +312,7 @@ function decodeArc(topology, arc) {
 
 }
 
-function topojson2threeJSTopPlanes(topology, extrudeBy, targetHeight, extraBaseHeight, fixedMax, mergeZValues) {
+function topojson2threeJSTopPlanes(topology, extrudeBy, valueConversionFunction, targetHeight, extraBaseHeight, fixedMax, mergeZValues) {
 	var shapes = [];
 
 	var isFunction = typeof extrudeBy === "function";
@@ -309,7 +322,11 @@ function topojson2threeJSTopPlanes(topology, extrudeBy, targetHeight, extraBaseH
 	if(isNaN(fixedMax)) {
 		topology.objects.forEach(function(feature) {
 			var extrusionValue = isFunction ? extrudeBy(feature) : parseFloat(feature.properties[extrudeBy]);
-			if(isNaN(extrusionValue))
+			
+			if(valueConversionFunction)
+				extrusionValue = valueConversionFunction(extrusionValue);
+
+			if(isNaN(extrusionValue) || extrusionValue == Infinity || extrusionValue == -Infinity)
 				extrusionValue = 0;
 
 		 	maxValue = Math.max(maxValue, extrusionValue);
@@ -317,24 +334,34 @@ function topojson2threeJSTopPlanes(topology, extrudeBy, targetHeight, extraBaseH
 	}
 	else {
 		maxValue = fixedMax;
+
+		if(valueConversionFunction)
+			maxValue = valueConversionFunction(maxValue);
 	}
 	
 	topology.objects.forEach(function(object) {
 
 		var shape = topoShape2threeShape(topology, object);
 		if(shape) {
-			var top = shape.makeGeometry();
-
-			var value = isFunction ? extrudeBy(object) : parseFloat(object.properties[extrudeBy]);
-			if(isNaN(value))
-				value = 0;
-
-			var extrusionAmount = getZ(value / maxValue, targetHeight, extraBaseHeight);
-			top.applyMatrix( new THREE.Matrix4().makeTranslation( 0, 0, extrusionAmount ) );
 			
-			shapes.push(top);
+			try {
+				var top = shape.makeGeometry();
+				var value = isFunction ? extrudeBy(object) : parseFloat(object.properties[extrudeBy]);
+				
+				if(valueConversionFunction)
+					value = valueConversionFunction(value);
+
+				if(isNaN(value) || value == Infinity || value == -Infinity)
+					value = 0;
+
+				var extrusionAmount = getZ(value / maxValue, targetHeight, extraBaseHeight);
+				top.applyMatrix( new THREE.Matrix4().makeTranslation( 0, 0, extrusionAmount ) );
+				
+				shapes.push(top);
+			}
+			catch(e) { }
 		}
-	});	
+	});
 
 	return shapes;
 }

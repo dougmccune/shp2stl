@@ -8,6 +8,8 @@ var geojson2topojson = require('./geojson2topojson');
 var ogr2ogr = require('ogr2ogr');
 
 module.exports.shp2stl = shp2stl;
+module.exports.geojson2stl = geojson2stl;
+module.exports.reprojectGeoJSON = reprojectGeoJSON;
 
 function shp2stl(shpfile, options, callback) {
 

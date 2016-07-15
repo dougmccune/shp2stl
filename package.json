@@ -1,6 +1,6 @@
 {
   "name": "shp2stl",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Convert shapefiles to STL 3D models",
   "keywords": [
     "geojson",
